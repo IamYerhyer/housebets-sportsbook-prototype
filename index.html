@@ -13,6 +13,26 @@
   --gold:#ffcf5c; --red:#f04b6d; --green:#3ddc97; --orange:#ffb454;
   --radius:14px;
 }
+/* light theme — Polymarket-style clean light mode, same Housebets structure */
+html[data-theme="light"]{
+  --bg:#edf3f5; --bg2:#e4edf0; --panel:#ffffff; --panel2:#e7f0f3; --panel3:#ffffff;
+  --line:#ccd9de; --line2:#a7c0ca;
+  --text:#0b2634; --muted:#4f6f7d; --muted2:#75909c;
+  --cyan:#12a7c4; --cyan2:#0a7d96;
+}
+html[data-theme="light"] .topbar{background:rgba(255,255,255,.96)}
+html[data-theme="light"] body{background:var(--bg)}
+html[data-theme="light"] .probwrap{background:rgba(255,255,255,.55)}
+/* scoreboard hero stays dark in both themes — keep its text light */
+.scoreboard{color:#e8f4f7}
+.scoreboard .sb-note,.scoreboard .prob-labels,.scoreboard .probwrap .ttl{color:#a8c4cf}
+.scoreboard .prob-labels b{color:#ffffff}
+.scoreboard .probwrap{background:rgba(7,22,31,.45)}
+.scoreboard .follow{color:#7d99a8}
+html[data-theme="light"] .odd.suspended{background:var(--panel2)}
+html[data-theme="light"] .toast{background:#ffffff;color:var(--text)}
+html[data-theme="light"] .crest{border-color:rgba(0,0,0,.12)}
+.themebtn{width:38px;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:17px;flex:none}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
@@ -191,6 +211,33 @@ h2.section .more{margin-left:auto;font-size:13px;color:var(--cyan2);font-weight:
 .mini-slip .slipitem{padding:10px 11px}
 .mini-slip .empty{padding:14px}
 
+/* ---------- V2: Polymarket-grade layer ---------- */
+button:active{transform:scale(.98)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.odd{transition:.13s, transform .1s}.odd:hover{transform:translateY(-1px)}
+.odd.selected{animation:selpulse .3s}
+@keyframes selpulse{0%{transform:scale(.96)}100%{transform:scale(1)}}
+.vol{font-size:12px;color:var(--muted);font-weight:600}
+.probwrap{position:relative;margin-top:16px;background:rgba(7,22,31,.45);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.probwrap .ttl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px}
+.probbar{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:2px}
+.probbar>i{display:block;height:100%;transition:width .6s ease}
+.prob-labels{display:flex;justify-content:space-between;margin-top:7px;font-size:12.5px;color:var(--muted);flex-wrap:wrap;gap:6px}
+.prob-labels b{color:var(--text)}
+.chartcard{background:var(--panel3);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.chartcard .head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.chartcard .big{font-size:23px;font-weight:900}
+.chartcard .chg{color:var(--green);font-weight:800;font-size:13.5px}
+.chartcard .sub{margin-left:auto}
+.livedot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.qchips{display:flex;gap:6px;margin-top:9px}
+.qchip{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.qchip:hover{color:var(--text);border-color:var(--cyan)}
+.spark{display:block}
+.fcard .volrow{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)}
+.ffilters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
+
 /* toast + footer */
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:#0e3448;border:1px solid var(--line2);color:var(--text);border-radius:12px;padding:11px 18px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 14px 34px rgba(0,0,0,.5);max-width:92vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%)}
@@ -229,6 +276,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
   <div class="logo"><span><span class="h">House</span>bets</span><span class="wave">🌊</span></div>
   <div class="prize"><span style="font-size:19px">🏆</span><span class="t">Weekly Prize<br><span class="v">$50,000.00</span></span></div>
   <div class="top-actions">
+    <button class="themebtn" id="themeBtn" onclick="toggleTheme()" title="Switch light / dark mode">☀️</button>
     <div class="balance"><div class="b" id="balanceTop">1,250.00 USDT</div><div class="s">Sample balance · no real money</div></div>
     <button class="btn btn-mint" onclick="toast('Sample prototype — deposits are disabled.')">Deposit</button>
     <div class="avatar" title="Hubie">🦥</div>
@@ -333,6 +381,13 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
     <!-- ================= 3. FOOTBALL ================= -->
     <section class="view" id="view-football">
       <h2 class="section" style="margin-top:2px">⚽ Football <span style="font-size:13px;color:var(--muted);font-weight:500">Tap any odds to add a single · ★ follows a team or competition</span></h2>
+      <div class="ffilters">
+        <button class="tab ffilter active" data-ff="all">All matches</button>
+        <button class="tab ffilter" data-ff="live">🔴 Live only</button>
+        <button class="tab ffilter" data-ff="today">Today</button>
+        <button class="tab ffilter" data-ff="tomorrow">Tomorrow</button>
+        <button class="tab ffilter" data-ff="weekend">Weekend</button>
+      </div>
       <div id="footballLeagues"></div>
     </section>
 
@@ -347,6 +402,17 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
           <div class="sb-team"><span class="crest" style="background:#0057b8">BHA</span><span class="nm">Brighton &amp; Hove Albion</span><button class="follow" data-follow="Brighton" title="Follow Brighton">★</button></div>
         </div>
         <div class="sb-note">Goal — Home No. 9, 23′ · Sample data only · Odds move and markets suspend as the match plays out</div>
+        <div class="probwrap">
+          <div class="ttl"><span>Win probability · live</span><span>Implied from match-result odds</span></div>
+          <div class="probbar"><i id="probHome" style="background:var(--cyan);width:66%"></i><i id="probDraw" style="background:#5b7d8c;width:22%"></i><i id="probAway" style="background:#2f7fd0;width:12%"></i></div>
+          <div class="prob-labels"><span>Arsenal <b id="probHomeT">66%</b></span><span>Draw <b id="probDrawT">22%</b></span><span>Brighton <b id="probAwayT">12%</b></span></div>
+        </div>
+      </div>
+
+      <div class="chartcard">
+        <div class="head"><span class="livedot"></span><span style="font-weight:700">Arsenal win probability</span><span class="big" id="chartProb">66%</span><span class="chg">▲ 24% since kick-off</span><span class="sub kv">Odds movement · this match · sample data</span></div>
+        <div id="probChart" style="margin-top:8px"></div>
+        <div class="prob-labels" style="margin-top:2px"><span>0′</span><span>⚽ Goal 23′</span><span>Half time</span><span id="chartNow">67′ · now</span></div>
       </div>
 
       <div class="tabs" id="marketTabs">
@@ -429,7 +495,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
 
 <footer>
   <span class="age">18+</span>
-  <div><b style="color:var(--muted)">Housebets Sportsbook — clickable design prototype.</b> Sample data only. No real players, no real money, no bets are placed.</div>
+  <div><b style="color:var(--muted)">Housebets Sportsbook — clickable design prototype · v2.</b> Sample data only. No real players, no real money, no bets are placed.</div>
   <div>Gamble responsibly. Front-end only concept built for the Housebets Sportsbook design contest.</div>
 </footer>
 
@@ -547,8 +613,9 @@ function renderStaticLists(){
   $('#liveStartingSoon').innerHTML=startingSoon.map(rowHTML).join('');
   $('#featuredCards').innerHTML=[homeMatches[0],homeMatches[1],leagues[1].matches[0],leagues[0].matches[2]].map(m=>`
     <div class="fcard"><div class="meta"><span>${m.league}</span>${m.live?`<span style="color:var(--red);font-weight:800">● LIVE ${m.min}′</span>`:`<span>${m.sub} · ${m.when}</span>`}</div>
-    <div class="teams"><span class="team">${crest(m.home)} ${m.home}${m.live?`<span class="score">${m.hs}</span>`:''}</span><span class="team">${crest(m.away)} ${m.away}${m.live?`<span class="score">${m.as}</span>`:''}</span></div>
-    <div class="odds3">${oddsPairs(m).map(([label,p])=>oddBtn(m,'Match result',shortLabel(label),p)).join('')}</div></div>`).join('');
+    <div class="teams"><span class="team">${crest(m.home)} <span class="tn">${m.home}</span>${m.live?`<span class="score">${m.hs}</span>`:''}</span><span class="team">${crest(m.away)} <span class="tn">${m.away}</span>${m.live?`<span class="score">${m.as}</span>`:''}</span></div>
+    <div class="odds3">${oddsPairs(m).map(([label,p])=>oddBtn(m,'Match result',shortLabel(label),p)).join('')}</div>
+    <div class="volrow"><span>📊 $${90+((m.id.charCodeAt(1)||0)*13)%260}k traded</span>${sparkSVG(m.id)}</div></div>`).join('');
   renderLive(); renderFootball();
 }
 function renderLive(){
@@ -562,12 +629,26 @@ function renderLive(){
 }
 $$('.live-sport').forEach(b=>b.addEventListener('click',()=>{$$('.live-sport').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderLive();}));
 $('#liveComp').addEventListener('change',renderLive);
-function renderFootball(){
-  $('#footballLeagues').innerHTML=leagues.map(lg=>`
-   <div class="league"><div class="league-head"><span>${lg.flag}</span> ${lg.name} <span class="ct">${lg.matches.length} matches</span>
-   <button class="follow" data-follow="${lg.name}" style="margin-left:auto" title="Follow ${lg.name}">★</button></div>
-   <div class="panelbox">${lg.matches.map(rowHTML).join('')}</div></div>`).join('');
+let footballFilter='all';
+function matchDay(m){
+  if(m.live)return 'live';
+  if(m.sub==='Today')return 'today';
+  if(m.sub==='Tomorrow')return 'tomorrow';
+  if(m.sub==='Sat'||m.sub==='Sun')return 'weekend';
+  return 'later';
 }
+function renderFootball(){
+  const keep=m=>footballFilter==='all'||matchDay(m)===footballFilter||(footballFilter==='today'&&m.live);
+  const html=leagues.map(lg=>{
+    const ms=lg.matches.filter(keep);
+    if(!ms.length)return '';
+    return `<div class="league"><div class="league-head"><span>${lg.flag}</span> ${lg.name} <span class="ct">${ms.length} matches</span>
+   <button class="follow" data-follow="${lg.name}" style="margin-left:auto" title="Follow ${lg.name}">★</button></div>
+   <div class="panelbox">${ms.map(rowHTML).join('')}</div></div>`;}).join('');
+  $('#footballLeagues').innerHTML=html||`<div class="panelbox"><div class="empty"><div class="big">📅</div><b>No matches in this filter.</b><br>Try another day.</div></div>`;
+  syncOddButtons();
+}
+$$('.ffilter').forEach(b=>b.addEventListener('click',()=>{$$('.ffilter').forEach(x=>x.classList.remove('active'));b.classList.add('active');footballFilter=b.dataset.ff;renderFootball();}));
 
 /* ============ match page markets ============ */
 const marketData={
@@ -605,7 +686,7 @@ const matchObj={id:'matchpage',home:'Arsenal',away:'Brighton & Hove Albion',live
 function renderMarkets(group){
   const g=marketData[group];
   $('#marketGroups').innerHTML=g.markets.map(mk=>`
-   <div class="market"><div class="market-head">${mk.t}<span class="st ${mk.susp?'susp':''}">${mk.susp?'Partly suspended':'Open'}</span></div>
+   <div class="market"><div class="market-head">${mk.t}<span class="vol" style="margin-left:10px">$${40+((mk.t.length*37)%220)}k traded</span><span class="st ${mk.susp?'susp':''}">${mk.susp?'Partly suspended':'Open'}</span></div>
    <div class="market-body">${mk.sels.map(s=>{
       const label=s[0],price=s[1],susp=s[2]||false;
       const id=matchObj.id+'|'+mk.t+'|'+label, sel=slip.has(id)?' selected':'';
@@ -660,7 +741,9 @@ function itemHTML(i){
     <button class="rm" onclick="removeSel('${i.id}')" title="Remove">✕</button></div>
     <div class="row"><label class="kv">Stake</label>
       <span class="stake"><span>USDT</span><input type="number" min="0" step="1" value="${i.stake}" oninput="setStake('${i.id}',this.value)"></span>
-      <span class="kv">Potential return <b>${fmt((i.stake||0)*i.odds)} USDT</b></span></div>
+      <span class="kv">Potential return <b>${fmt((i.stake||0)*i.odds)} USDT</b></span>
+      <span class="kv">Implied chance <b>~${Math.round(100/i.odds)}%</b></span></div>
+    <div class="qchips">${[10,25,50,100].map(v=>`<button class="qchip" onclick="setStake('${i.id}',${v});renderSlip()">${v}</button>`).join('')}<button class="qchip" onclick="setStake('${i.id}',Math.floor(balance));renderSlip()">Max</button><span class="kv" style="align-self:center">USDT quick stakes</span></div>
     ${stateBanner}</div>`;
 }
 function setStake(id,v){const i=slip.get(id);if(i){i.stake=Math.max(0,parseFloat(v)||0);renderSlipSoft();}}
@@ -756,10 +839,57 @@ setInterval(()=>{
   const np=Math.max(1.02,Math.round((price+delta)*100)/100);
   pEl.innerHTML=fmt(np)+`<span class="arrow ${delta>0?'up':'down'}">${delta>0?'▲':'▼'}</span>`;
   b.classList.remove('flash-up','flash-down');void b.offsetWidth;b.classList.add(delta>0?'flash-up':'flash-down');
+  updateProbBar();
 },4500);
 
+/* ============ V2: theme, probability, chart, sparklines ============ */
+function toggleTheme(){
+  const h=document.documentElement;
+  const light=h.dataset.theme!=='light';
+  h.dataset.theme=light?'light':'dark';
+  $('#themeBtn').textContent=light?'🌙':'☀️';
+  try{localStorage.setItem('hb-theme',h.dataset.theme);}catch(e){}
+  toast(light?'Light mode — same Housebets, Polymarket-clean.':'Dark mode — classic Housebets.');
+}
+try{if(localStorage.getItem('hb-theme')==='light'){document.documentElement.dataset.theme='light';$('#themeBtn').textContent='🌙';}}catch(e){}
+function sparkSVG(seed){
+  let s=0;for(const c of seed)s+=c.charCodeAt(0);
+  let pts=[],v=14;for(let i=0;i<12;i++){v+=( ((s*(i+7))%9)-4 );v=Math.max(3,Math.min(25,v));pts.push(`${i*8},${28-v}`);}
+  const up=v>=14;
+  return `<svg class="spark" width="88" height="28" viewBox="0 0 88 28"><polyline points="${pts.join(' ')}" fill="none" stroke="${up?'var(--green)':'var(--red)'}" stroke-width="2" stroke-linejoin="round"/></svg>`;
+}
+const probSeries=[[0,42],[8,44],[15,41],[23,58],[31,55],[38,60],[45,57],[52,63],[60,64],[67,66]];
+function drawChart(current){
+  const W=660,H=150,P=8;
+  const series=probSeries.slice(0,-1).concat([[67,current]]);
+  const X=m=>P+(m/67)*(W-2*P), Y=p=>H-14-((p-30)/50)*(H-30);
+  const line=series.map(([m,p])=>`${X(m)},${Y(p)}`).join(' ');
+  const area=`${P},${H-8} `+line+` ${X(67)},${H-8}`;
+  $('#probChart').innerHTML=`<svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="Arsenal win probability chart">
+    <defs><linearGradient id="pgrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38c6da" stop-opacity=".38"/><stop offset="100%" stop-color="#38c6da" stop-opacity="0"/></linearGradient></defs>
+    ${[40,55,70].map(g=>`<line x1="${P}" x2="${W-P}" y1="${Y(g)}" y2="${Y(g)}" stroke="var(--line)" stroke-dasharray="3 5"/><text x="${W-P}" y="${Y(g)-4}" fill="var(--muted2)" font-size="10" text-anchor="end">${g}%</text>`).join('')}
+    <polygon points="${area}" fill="url(#pgrad)"/>
+    <polyline points="${line}" fill="none" stroke="#38c6da" stroke-width="2.5" stroke-linejoin="round"/>
+    <line x1="${X(23)}" x2="${X(23)}" y1="8" y2="${H-8}" stroke="var(--gold)" stroke-dasharray="4 4"/>
+    <circle cx="${X(67)}" cy="${Y(current)}" r="5" fill="#38c6da" stroke="#fff" stroke-width="2"/>
+  </svg>`;
+}
+function updateProbBar(){
+  const btns={};
+  $$('#marketGroups .odd[data-oid]').forEach(b=>{if(!b.dataset.oid.includes('|Match result|'))return;const p=parseFloat((b.querySelector('.p')||{}).textContent);if(!p)return;
+    if(b.dataset.oid.endsWith('|Arsenal'))btns.h=p; if(b.dataset.oid.endsWith('|Draw'))btns.d=p; if(b.dataset.oid.endsWith('|Brighton'))btns.a=p;});
+  if(!btns.h||!btns.d||!btns.a)return;
+  const raw=[1/btns.h,1/btns.d,1/btns.a], sum=raw.reduce((x,y)=>x+y,0);
+  const pr=raw.map(r=>Math.round(r/sum*100));
+  pr[0]+=100-pr.reduce((x,y)=>x+y,0);
+  $('#probHome').style.width=pr[0]+'%';$('#probDraw').style.width=pr[1]+'%';$('#probAway').style.width=pr[2]+'%';
+  $('#probHomeT').textContent=pr[0]+'%';$('#probDrawT').textContent=pr[1]+'%';$('#probAwayT').textContent=pr[2]+'%';
+  $('#chartProb').textContent=pr[0]+'%';
+  drawChart(pr[0]);
+}
+
 /* ============ init ============ */
-renderStaticLists(); renderMarkets('popular'); renderSlip(); renderMyBets();
+renderStaticLists(); renderMarkets('popular'); renderSlip(); renderMyBets(); updateProbBar();
 const startView=new URLSearchParams(location.search).get('view');
 if(startView&&document.getElementById('view-'+startView))go(startView);
 if(new URLSearchParams(location.search).get('tab')==='bets')showSlipTab('bets');

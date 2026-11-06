@@ -13,5 +13,11 @@ A clickable, front-end-only sportsbook prototype built for the Housebets "Sports
 
 Works at 390px (bet slip becomes a bottom bar) and 1440px (Housebets shell: top bar, left nav, side panel). Sample data only — no real players, no real money.
 
+## V2 — Polymarket-grade pass
+- **Light / dark mode toggle** in the top bar (choice is remembered)
+- Match page: live **win-probability bar** implied from the odds, an **odds-movement chart** with the 23' goal marked, and traded-volume on every market
+- Bet slip: **quick-stake chips** (10 / 25 / 50 / 100 / Max) and implied win chance per single
+- Football: day filters (Live only / Today / Tomorrow / Weekend); featured matches carry volume + sparkline trends
+
 Built by hand in HTML/CSS/JavaScript with Muse (Lyght). No templates or UI kits.
 18+ · Gamble responsibly.
