@@ -211,6 +211,23 @@ h2.section .more{margin-left:auto;font-size:13px;color:var(--cyan2);font-weight:
 .mini-slip .slipitem{padding:10px 11px}
 .mini-slip .empty{padding:14px}
 
+/* ---------- V3: scorecard layer ---------- */
+.hero{margin:16px 0 4px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(120deg,#0d2f3a,#0a1c28 55%,#123524);padding:22px;position:relative;overflow:hidden}
+.hero-in{display:flex;gap:18px;align-items:center;justify-content:space-between}
+.hero-kicker{font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.hero-title{margin:6px 0 6px;font-size:26px;line-height:1.15}
+.hero-sub{margin:0 0 14px;color:var(--muted);max-width:560px;font-size:14.5px}
+.hero-art{font-size:92px;line-height:1;flex:none;filter:drop-shadow(0 10px 22px rgba(0,0,0,.45))}
+.hero-result{margin-left:12px;font-weight:700;color:var(--green)}
+.hmsg{padding:9px 12px;border-radius:12px;background:var(--panel3);border:1px solid var(--line);font-size:13.5px;max-width:95%}
+.hmsg.me{align-self:flex-end;background:var(--panel2)}
+.hmsg.hub{align-self:flex-start}
+.modal{position:fixed;inset:0;background:rgba(3,8,10,.72);display:flex;align-items:center;justify-content:center;z-index:300;padding:16px}
+.modal-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;width:min(430px,94vw)}
+.dep-addr{font-family:ui-monospace,monospace;background:var(--panel3);border:1px dashed var(--line);border-radius:12px;padding:13px;text-align:center;font-weight:700;margin:12px 0}
+.qr{font-size:74px;text-align:center;line-height:1.1}
+.livecount{color:var(--red);font-weight:800;font-size:13px}
+@media(max-width:700px){.hero-art{display:none}.hero-title{font-size:21px}}
 /* ---------- V2: Polymarket-grade layer ---------- */
 button:active{transform:scale(.98)}
 :focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
@@ -278,7 +295,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
   <div class="top-actions">
     <button class="themebtn" id="themeBtn" onclick="toggleTheme()" title="Switch light / dark mode">☀️</button>
     <div class="balance"><div class="b" id="balanceTop">1,250.00 USDT</div><div class="s">Sample balance · no real money</div></div>
-    <button class="btn btn-mint" onclick="toast('Sample prototype — deposits are disabled.')">Deposit</button>
+    <button class="btn btn-mint" onclick="openDeposit()">Deposit</button>
     <div class="avatar" title="Hubie">🦥</div>
   </div>
 </header>
@@ -327,6 +344,12 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
         <button class="tab" data-nav="live">🎮 Esports</button>
       </div>
 
+      <div class="hero"><div class="hero-in"><div>
+        <div class="hero-kicker">🏆 Weekly Prize · $50,000</div>
+        <h3 class="hero-title">Your wallet's history is worth money here.</h3>
+        <p class="hero-sub">Scan any wallet you've played with before — your on-chain bonus appears in seconds, and one $1 deposit unlocks it. Sample prototype: the scan is simulated.</p>
+        <button class="btn btn-mint" id="heroScanBtn" onclick="heroScan()">🔍 Scan my wallet</button><span class="hero-result" id="heroResult"></span>
+      </div><div class="hero-art">🦥</div></div></div>
       <h2 class="section" style="margin-top:4px">Favourites</h2>
       <div class="chips">
         <span class="chip"><span class="star">★</span> Premier League <span class="x">✕</span></span>
@@ -356,7 +379,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
 
     <!-- ================= 2. LIVE ================= -->
     <section class="view" id="view-live">
-      <h2 class="section" style="margin-top:2px">🔴 Live now <span style="font-size:13px;color:var(--muted);font-weight:500">Every match in play · scores and clocks update live</span></h2>
+      <h2 class="section" style="margin-top:2px">🔴 Live now <span class="livecount" id="liveCount"></span> <span style="font-size:13px;color:var(--muted);font-weight:500">Every match in play · scores and clocks update live</span></h2>
       <div class="filters">
         <button class="tab live-sport active" data-sport="all">All sports</button>
         <button class="tab live-sport" data-sport="football">⚽ Football</button>
@@ -445,6 +468,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
           </div>
           <button class="btn btn-cyan" id="placeBetBtn" style="width:100%;justify-content:center;padding:13px" onclick="placeBets()">Place bets — singles only</button>
           <p class="sub" style="margin-top:9px;text-align:center">No multis, accumulators, boosts or free bets — by design.</p>
+          <button class="pillbtn" id="clearSlipBtn" onclick="clearSlip()" style="display:none;margin:2px auto 0">🗑 Remove all selections</button>
         </div>
         <div class="demo-bar">
           <span class="lbl">Judge demo — every state, one tap</span>
@@ -475,6 +499,17 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
       </div>
       <div class="progress"><i style="width:72%"></i></div>
       <div class="sub" style="margin-top:7px">280 XP to Level 5 — rakeback boost + weekly drop.</div>
+      <button class="pillbtn" onclick="toggleHubieChat()" style="margin-top:10px">💬 Ask Hubie</button>
+      <div id="hubieChat" style="display:none;margin-top:11px">
+        <div id="hubieThread" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+          <div class="hmsg hub">🦥 Hey! I'm Hubie, your rewards assistant. Ask me about rakeback, levelling up, or the on-chain bonus.</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="qchip" onclick="hubieAnswer('rakeback')">How does rakeback work?</button>
+          <button class="qchip" onclick="hubieAnswer('level')">How do I level up?</button>
+          <button class="qchip" onclick="hubieAnswer('bonus')">What's the on-chain bonus?</button>
+        </div>
+      </div>
     </div>
     <div class="card">
       <h3>⛓️ On-chain bonus</h3>
@@ -495,9 +530,17 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
 
 <footer>
   <span class="age">18+</span>
-  <div><b style="color:var(--muted)">Housebets Sportsbook — clickable design prototype · v2.</b> Sample data only. No real players, no real money, no bets are placed.</div>
+  <div><b style="color:var(--muted)">Housebets Sportsbook — clickable design prototype · v3.</b> Sample data only. No real players, no real money, no bets are placed.</div>
   <div>Gamble responsibly. Front-end only concept built for the Housebets Sportsbook design contest.</div>
 </footer>
+<div id="depModal" class="modal" style="display:none"><div class="modal-card">
+  <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">⚡ Deposit USDT</h3><button class="rm" onclick="closeDeposit()">✕</button></div>
+  <p class="sub" style="margin-top:8px">Send USDT (BEP20) to your Housebets wallet. Deposits land in seconds — withdrawals pay straight back to your wallet, no pending queue.</p>
+  <div class="qr">▦</div>
+  <div class="dep-addr">0x7f3a…9E42 · sample address</div>
+  <p class="sub">Prototype only — no real funds move and this address is a sample.</p>
+  <button class="btn btn-cyan" style="width:100%;justify-content:center" onclick="closeDeposit()">Done</button>
+</div></div>
 
 <div class="slipbar" id="slipBar" onclick="go('slip')">
   <span>🎟️ Bet Slip</span><span class="sub" id="slipBarText">0 selections</span>
@@ -624,6 +667,9 @@ function renderLive(){
   const list=liveMatches.filter(m=>(sport==='all'||m.sport===sport)&&(comp==='all'||m.league===comp));
   $('#liveList').innerHTML=list.map(rowHTML).join('');
   const empty=list.length===0;
+  $('#liveCount').textContent='· '+liveMatches.length+' in play';
+  const lb=document.querySelector('#sportTabs .tab .n'); if(lb) lb.textContent=liveMatches.length;
+  const ld=document.querySelector('.live-dot'); if(ld) ld.textContent='● '+liveMatches.length;
   $('#liveList').style.display=empty?'none':'block';
   $('#liveEmpty').style.display=empty?'block':'none';
 }
@@ -656,6 +702,8 @@ const marketData={
    {t:'Match result',drift:true,sels:[['Arsenal',1.42],['Draw',4.20],['Brighton',8.50]]},
    {t:'Next goal',drift:true,sels:[['Arsenal',1.78],['No goal',6.50],['Brighton',3.10]]},
    {t:'Double chance',sels:[['Arsenal or Draw (1X)',1.08],['Arsenal or Brighton (12)',1.22],['Draw or Brighton (X2)',2.75]]},
+   {t:'Draw no bet',sels:[['Arsenal',1.22],['Brighton',3.90]]},
+   {t:'Correct score',sels:[['1–0',6.50],['2–0',7.00],['2–1',8.00],['1–1',7.50],['0–0',11.00],['1–2',13.00]]},
  ]},
  goals:{title:'Goals',markets:[
    {t:'Total goals — Over / Under 2.5',sels:[['Over 2.5',2.35],['Under 2.5',1.58]]},
@@ -668,8 +716,8 @@ const marketData={
    {t:'2nd half — Over / Under 1.5 goals',sels:[['Over 1.5',2.20],['Under 1.5',1.62]]},
  ]},
  handicaps:{title:'Handicaps',markets:[
-   {t:'Asian handicap — Arsenal -1.0',sels:[['Arsenal -1.0',2.60]]},
-   {t:'Asian handicap — Brighton +1.5',sels:[['Brighton +1.5',1.52]]},
+   {t:'Asian handicap — Arsenal -1.0',sels:[['Arsenal -1.0',2.60],['Brighton +1.0',1.50]]},
+   {t:'Asian handicap — Arsenal -1.5',sels:[['Arsenal -1.5',3.40],['Brighton +1.5',1.30]]},
    {t:'European handicap — Arsenal -2',sels:[['Arsenal -2',4.75],['Draw (-2)',3.90],['Brighton (+2)',1.58]]},
  ]},
  scorers:{title:'Goalscorers',markets:[
@@ -732,7 +780,9 @@ function renderSlip(){
   $('#totalReturn').textContent=fmt(t.ret)+' USDT';
   $('#balanceAfter').textContent=fmt(balance-t.stake)+' USDT';
   $('#placeBetBtn').disabled = n===0;
+  const csb=$('#clearSlipBtn'); if(csb) csb.style.display=n?'block':'none';
 }
+function clearSlip(){slip.clear();syncOddButtons();renderSlip();toast('Slip cleared.');}
 function itemHTML(i){
   const stateBanner = i.state==='changed' ? `<div class="banner warn" style="margin-top:10px">⚠ <span><b>Odds changed:</b> ${fmt(i.oldOdds)} → <b>${fmt(i.odds)}</b>. You must accept the new odds before this bet can be placed.<br><button class="pillbtn" style="margin-top:7px" onclick="acceptChange('${i.id}')">Accept ${fmt(i.odds)}</button> <button class="pillbtn" onclick="removeSel('${i.id}')">Remove selection</button></span></div>`
     : i.state==='suspended' ? `<div class="banner err" style="margin-top:10px">🔒 <span><b>Selection suspended.</b> This market is paused — the selection can't be placed until it reopens.<br><button class="pillbtn" style="margin-top:7px" onclick="removeSel('${i.id}')">Remove selection</button></span></div>` : '';
@@ -829,7 +879,24 @@ document.addEventListener('click',e=>{if(!e.target.closest('.searchbar'))$('#sea
 /* ============ live simulation: clocks + moving odds ============ */
 setInterval(()=>{$$('[data-clockmin]').forEach(el=>{let m=parseInt(el.dataset.min)+1;el.dataset.min=m;el.textContent=m;});
   const mc=document.querySelector('[data-clock]');if(mc){let m=parseInt(mc.dataset.min)+1;mc.dataset.min=m;mc.textContent=m;}},20000);
+function driftSelected(){
+  const sel=$$('.odd[data-drift="1"].selected').filter(b=>{const it=slip.get(b.dataset.oid);return it&&it.state==='ok';});
+  if(!sel.length)return false;
+  const b=sel[Math.floor(Math.random()*sel.length)];
+  const pEl=b.querySelector('.p');if(!pEl)return false;
+  const price=parseFloat(pEl.textContent)||0;if(!price)return false;
+  const delta=(Math.random()<0.5?-1:1)*(0.03+Math.random()*0.07);
+  const np=Math.max(1.02,Math.round((price+delta)*100)/100);
+  const it=slip.get(b.dataset.oid);
+  it.oldOdds=it.odds;it.odds=np;it.state='changed';
+  pEl.innerHTML=fmt(np)+`<span class="arrow ${delta>0?'up':'down'}">${delta>0?'▲':'▼'}</span>`;
+  b.classList.remove('flash-up','flash-down');void b.offsetWidth;b.classList.add(delta>0?'flash-up':'flash-down');
+  setBanner('warn','⚠ <span><b>Odds changed</b> on a live selection in your slip. Accept the new price on the selection to place it — we never place at a price you didn\'t agree to.</span>');
+  renderSlip();toast('Odds changed on a slip selection — review it in the slip.');
+  return true;
+}
 setInterval(()=>{
+  if(Math.random()<0.35&&driftSelected()){updateProbBar();return;}
   const drifters=$$('.odd[data-drift="1"]').filter(b=>!b.classList.contains('selected')&&!b.disabled);
   if(!drifters.length)return;
   const b=drifters[Math.floor(Math.random()*drifters.length)];
@@ -841,6 +908,32 @@ setInterval(()=>{
   b.classList.remove('flash-up','flash-down');void b.offsetWidth;b.classList.add(delta>0?'flash-up':'flash-down');
   updateProbBar();
 },4500);
+
+/* ============ V3: hero scan, Hubie chat, deposit ============ */
+let heroScanned=false;
+function heroScan(){
+  if(heroScanned)return;
+  const btn=$('#heroScanBtn'),res=$('#heroResult');
+  btn.disabled=true;btn.textContent='Scanning on-chain…';
+  setTimeout(()=>{heroScanned=true;balance+=25;updateBalance();
+    btn.textContent='✓ Wallet scanned';
+    res.textContent='Bonus found: 25.00 USDT — credited to your sample balance.';
+    toast('On-chain bonus found — 25.00 USDT sample bonus credited.');},1200);
+}
+function toggleHubieChat(){const c=$('#hubieChat');c.style.display=c.style.display==='none'?'block':'none';}
+const HUBIE_Q={rakeback:'How does rakeback work?',level:'How do I level up?',bonus:"What's the on-chain bonus?"};
+const HUBIE_A={
+ rakeback:"You earn rakeback on every bet — win or lose. It lands in your rewards balance daily, and the rate climbs with your level. At Level 4 you're on the boosted tier (sample figures).",
+ level:"Every bet earns XP. You're at 720 / 1,000 XP — 280 XP from Level 5, which unlocks a level-up chest, a bigger daily reload and a rakeback boost. Keep playing and I'll keep count. 🦥",
+ bonus:"Paste any wallet you've played with before, we scan it on-chain, and your history turns into a bonus — one $1 deposit unlocks it. Try it: there's a scan button in the hero at the top of Sports home."};
+function hubieAnswer(k){
+  const th=$('#hubieThread');if(!th)return;
+  th.innerHTML+=`<div class="hmsg me">${HUBIE_Q[k]}</div>`;
+  setTimeout(()=>{th.innerHTML+=`<div class="hmsg hub">🦥 ${HUBIE_A[k]}</div>`;},450);
+}
+function openDeposit(){$('#depModal').style.display='flex';}
+function closeDeposit(){$('#depModal').style.display='none';}
+document.addEventListener('click',e=>{if(e.target.id==='depModal')closeDeposit();});
 
 /* ============ V2: theme, probability, chart, sparklines ============ */
 function toggleTheme(){
