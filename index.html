@@ -211,6 +211,21 @@ h2.section .more{margin-left:auto;font-size:13px;color:var(--cyan2);font-weight:
 .mini-slip .slipitem{padding:10px 11px}
 .mini-slip .empty{padding:14px}
 
+/* ---------- V4: three themes + feature packs ---------- */
+html[data-theme="platform"]{
+  --bg:#05080a; --bg2:#070b0d; --panel:#0c1410; --panel2:#122017; --panel3:#0a100c;
+  --line:#1c2f23; --line2:#2a4a35;
+  --text:#eef7f0; --muted:#93b3a0; --muted2:#6f8f7d;
+  --cyan:#02f7fd; --cyan2:#7dfcff;
+}
+html[data-theme="platform"] .topbar{background:rgba(5,8,10,.96)}
+html[data-theme="platform"] .toast{background:#0c1410;color:var(--text)}
+.themebtn{width:auto;padding:0 12px;font-size:13.5px;font-weight:700;white-space:nowrap}
+.top-actions{position:relative}
+input[type=range]{accent-color:var(--cyan)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:8px;height:13px;border-radius:2px;animation:cfall 1.5s ease-in forwards}
+@keyframes cfall{to{transform:translateY(108vh) rotate(560deg)}}
 /* ---------- V3: scorecard layer ---------- */
 .hero{margin:16px 0 4px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(120deg,#0d2f3a,#0a1c28 55%,#123524);padding:22px;position:relative;overflow:hidden}
 .hero-in{display:flex;gap:18px;align-items:center;justify-content:space-between}
@@ -293,10 +308,17 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
   <div class="logo"><span><span class="h">House</span>bets</span><span class="wave">🌊</span></div>
   <div class="prize"><span style="font-size:19px">🏆</span><span class="t">Weekly Prize<br><span class="v">$50,000.00</span></span></div>
   <div class="top-actions">
-    <button class="themebtn" id="themeBtn" onclick="toggleTheme()" title="Switch light / dark mode">☀️</button>
+    <button class="themebtn" id="themeBtn" onclick="toggleTheme()" title="Theme: Dark, Light or Platform">🌙 Dark</button>
     <div class="balance"><div class="b" id="balanceTop">1,250.00 USDT</div><div class="s">Sample balance · no real money</div></div>
     <button class="btn btn-mint" onclick="openDeposit()">Deposit</button>
-    <div class="avatar" title="Hubie">🦥</div>
+    <div class="avatar" id="avatarBtn" title="Wallet" onclick="toggleWalletMenu(event)" style="cursor:pointer">🦥</div>
+    <div id="walletMenu" class="card" style="display:none;position:absolute;right:0;top:56px;width:252px;z-index:120;text-align:left">
+      <b>Wallet · sample</b>
+      <div class="sub" style="margin:4px 0 10px">Balance <b id="wmBal" style="color:var(--text)">1,250.00 USDT</b></div>
+      <button class="btn btn-mint" style="width:100%;justify-content:center;margin-bottom:8px" onclick="openDeposit();toggleWalletMenu()">Deposit</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="openWithdraw();toggleWalletMenu()">Withdraw</button>
+      <div class="sub" style="margin-top:11px;line-height:1.7">Recent (sample):<br>+25.00 · On-chain bonus<br>−20.00 · Bet — Liverpool single<br>+38.20 · Cash out</div>
+    </div>
   </div>
 </header>
 
@@ -306,6 +328,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
     <button class="navitem active" data-nav="home"><span>🏠</span><span class="txt">Sports Home</span></button>
     <button class="navitem" data-nav="live"><span>📺</span><span class="txt">Live</span><span class="live-dot txt">● 13</span></button>
     <button class="navitem" data-nav="football"><span>⚽</span><span class="txt">Football</span></button>
+    <button class="navitem" data-nav="rewards"><span>🎁</span><span class="txt">Rewards</span></button>
     <button class="navitem" data-nav="slip"><span>🎟️</span><span class="txt">Bet Slip + My Bets</span><span class="cnt" id="navSlipCount">0</span></button>
     <h4>Sports</h4>
     <button class="sportrow" data-nav="football"><span>⚽</span><span class="txt">Football</span><span class="cnt">214</span></button>
@@ -333,6 +356,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
         <input id="globalSearch" type="text" placeholder="Search teams, players, competitions, markets" autocomplete="off">
         <div class="search-results" id="searchResults"></div>
       </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><span class="kv" style="align-self:center">Trending:</span><button class="qchip" onclick="trendSearch('Arsenal')">Arsenal</button><button class="qchip" onclick="trendSearch('Liverpool')">Liverpool</button><button class="qchip" onclick="trendSearch('Champions League')">Champions League</button><button class="qchip" onclick="trendSearch('Over / Under 2.5 goals')">Over/Under 2.5</button></div>
       <div class="tabs" id="sportTabs">
         <button class="tab active" data-nav="home">🏠 Home</button>
         <button class="tab" data-nav="live">📺 Live <span class="n">13</span></button>
@@ -391,6 +415,10 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
           <option value="Premier League">Premier League</option>
           <option value="Champions League">Champions League</option>
           <option value="LaLiga">LaLiga</option>
+        </select>
+        <select id="liveSort" aria-label="Sort live matches">
+          <option value="time">Sort: kick-off</option>
+          <option value="volume">Sort: most traded</option>
         </select>
       </div>
       <div class="panelbox" id="liveList"></div>
@@ -485,7 +513,31 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
           <button class="tab bet-filter" data-bf="settled">Settled</button>
           <button class="tab bet-filter" data-bf="all">All</button>
         </div>
+        <div id="betsSummary" style="margin-bottom:12px"></div>
         <div id="myBetsList"></div>
+      </div>
+    </section>
+    <!-- ================= 6. REWARDS ================= -->
+    <section class="view" id="view-rewards">
+      <h2 class="section" style="margin-top:2px">🎁 Rewards <span style="font-size:13px;color:var(--muted);font-weight:500">Powered by Hubie · sample figures</span></h2>
+      <div class="card" style="margin-bottom:12px">
+        <div class="hubie"><div class="face">🦥</div><div><h3 style="margin:0">Level 4</h3><div class="sub">720 / 1,000 XP · 280 XP to Level 5</div></div></div>
+        <div class="progress" style="margin-top:11px"><i style="width:72%"></i></div>
+        <div class="sub" style="margin-top:7px">Level 5 unlocks a level-up chest, a bigger daily reload and a rakeback boost.</div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <h3>💸 Rakeback ready to claim</h3>
+        <div style="font-size:26px;font-weight:800;margin:6px 0"><span id="rakeAmt">12.50</span> USDT</div>
+        <div class="sub">Earned on every bet — win or lose. New rakeback lands every day.</div>
+        <button class="btn btn-mint" id="rakeBtn" style="margin-top:11px" onclick="claimRake()">Claim rakeback</button>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <h3>🔄 Daily reload</h3>
+        <div class="sub">Your next reload lands in <b id="reloadTimer" style="color:var(--text)">--:--:--</b></div>
+      </div>
+      <div class="card">
+        <h3>More ways to get rewarded</h3>
+        <div class="bonus-steps" style="margin-top:9px"><span><b>Cashback</b> every 24 hours</span><span><b>Daily reloads</b> on your level</span><span><b>Duel Mode</b> — challenge a friend</span><span><b>Level-up rewards</b> at every tier</span></div>
       </div>
     </section>
   </main>
@@ -500,6 +552,7 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
       <div class="progress"><i style="width:72%"></i></div>
       <div class="sub" style="margin-top:7px">280 XP to Level 5 — rakeback boost + weekly drop.</div>
       <button class="pillbtn" onclick="toggleHubieChat()" style="margin-top:10px">💬 Ask Hubie</button>
+      <button class="pillbtn" data-nav="rewards" style="margin-top:10px;margin-left:6px">🎁 Open rewards</button>
       <div id="hubieChat" style="display:none;margin-top:11px">
         <div id="hubieThread" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
           <div class="hmsg hub">🦥 Hey! I'm Hubie, your rewards assistant. Ask me about rakeback, levelling up, or the on-chain bonus.</div>
@@ -530,9 +583,18 @@ footer .age{display:inline-block;border:1.5px solid var(--red);color:var(--red);
 
 <footer>
   <span class="age">18+</span>
-  <div><b style="color:var(--muted)">Housebets Sportsbook — clickable design prototype · v3.</b> Sample data only. No real players, no real money, no bets are placed.</div>
+  <div><b style="color:var(--muted)">Housebets Sportsbook — clickable design prototype · v4.</b> Sample data only. No real players, no real money, no bets are placed.</div>
   <div>Gamble responsibly. Front-end only concept built for the Housebets Sportsbook design contest.</div>
 </footer>
+<div id="wdModal" class="modal" style="display:none"><div class="modal-card">
+  <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">⚡ Withdraw USDT</h3><button class="rm" onclick="closeWithdraw()">✕</button></div>
+  <p class="sub" style="margin-top:8px">Withdrawals pay straight to your wallet — no pending queue, no phone call.</p>
+  <label class="kv">Amount (USDT)</label><input id="wdAmt" type="number" min="0" step="1" placeholder="50" style="width:100%;margin:6px 0 10px;padding:11px;border-radius:10px;background:var(--panel3);border:1px solid var(--line);color:var(--text)">
+  <label class="kv">Wallet address (BEP20)</label><input id="wdAddr" type="text" placeholder="0x…" style="width:100%;margin:6px 0 12px;padding:11px;border-radius:10px;background:var(--panel3);border:1px solid var(--line);color:var(--text)">
+  <div id="wdErr" style="color:var(--red);font-size:13px;margin-bottom:9px"></div>
+  <button class="btn btn-cyan" style="width:100%;justify-content:center" onclick="doWithdraw()">Withdraw instantly</button>
+  <p class="sub" style="margin-top:9px">Prototype only — sample balance, no real funds move.</p>
+</div></div>
 <div id="depModal" class="modal" style="display:none"><div class="modal-card">
   <div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">⚡ Deposit USDT</h3><button class="rm" onclick="closeDeposit()">✕</button></div>
   <p class="sub" style="margin-top:8px">Send USDT (BEP20) to your Housebets wallet. Deposits land in seconds — withdrawals pay straight back to your wallet, no pending queue.</p>
@@ -633,7 +695,8 @@ function oddsPairs(m){
   return [[m.home,m.odds[0]],['Draw',m.odds[1]],[m.away,m.odds[2]]];
 }
 function rowHTML(m){
-  const odds=oddsPairs(m).map(([label,p])=>oddBtn(m,'Match result',shortLabel(label),p)).join('');
+  const susp=m.suspUntil&&m.suspUntil>Date.now();
+  const odds=oddsPairs(m).map(([label,p])=>oddBtn(m,'Match result',shortLabel(label),p,susp)).join('');
   const when=m.live?`<span class="livebadge">LIVE</span><br><span class="clock">${m.clockLabel||`<span data-clockmin data-min="${m.min}">${m.min}</span>′`}</span>`
                      :`<b style="color:var(--text)">${m.when||''}</b><br>${m.sub||''}`;
   const score=m.live&&m.hs!=null?`<span class="score">${m.hs}</span>`:'';
@@ -643,7 +706,7 @@ function rowHTML(m){
     <div class="teams">
       <span class="team">${crest(m.home)} <span class="tn">${m.home}</span> ${score} ${m.fav?'<span style="color:var(--gold)">★</span>':''}</span>
       <span class="team">${crest(m.away)} <span class="tn">${m.away}</span> ${score2}</span>
-      <span style="font-size:11.5px;color:var(--muted2)">${m.league}${m.match?' · <a href="#" data-nav="match" style="font-weight:700">Open match page ›</a>':''}</span>
+      <span style="font-size:11.5px;color:var(--muted2)">${m.league}${susp?' · <b style="color:var(--orange)">⚽ Goal — markets suspended</b>':''}${m.match?' · <a href="#" data-nav="match" style="font-weight:700">Open match page ›</a>':''}</span>
     </div>
     <div class="odds3">${odds}</div>
     <span class="more-markets">+${m.markets||0} ›</span>
@@ -657,7 +720,7 @@ function renderStaticLists(){
   $('#featuredCards').innerHTML=[homeMatches[0],homeMatches[1],leagues[1].matches[0],leagues[0].matches[2]].map(m=>`
     <div class="fcard"><div class="meta"><span>${m.league}</span>${m.live?`<span style="color:var(--red);font-weight:800">● LIVE ${m.min}′</span>`:`<span>${m.sub} · ${m.when}</span>`}</div>
     <div class="teams"><span class="team">${crest(m.home)} <span class="tn">${m.home}</span>${m.live?`<span class="score">${m.hs}</span>`:''}</span><span class="team">${crest(m.away)} <span class="tn">${m.away}</span>${m.live?`<span class="score">${m.as}</span>`:''}</span></div>
-    <div class="odds3">${oddsPairs(m).map(([label,p])=>oddBtn(m,'Match result',shortLabel(label),p)).join('')}</div>
+    <div class="odds3">${oddsPairs(m).map(([label,p])=>oddBtn(m,'Match result',shortLabel(label),p,m.suspUntil&&m.suspUntil>Date.now())).join('')}</div>
     <div class="volrow"><span>📊 $${90+((m.id.charCodeAt(1)||0)*13)%260}k traded</span>${sparkSVG(m.id)}</div></div>`).join('');
   renderLive(); renderFootball();
 }
@@ -665,6 +728,7 @@ function renderLive(){
   const sport=document.querySelector('.live-sport.active')?.dataset.sport||'all';
   const comp=$('#liveComp').value;
   const list=liveMatches.filter(m=>(sport==='all'||m.sport===sport)&&(comp==='all'||m.league===comp));
+  if($('#liveSort')&&$('#liveSort').value==='volume')list.sort((a,b)=>(b.markets||0)-(a.markets||0));
   $('#liveList').innerHTML=list.map(rowHTML).join('');
   const empty=list.length===0;
   $('#liveCount').textContent='· '+liveMatches.length+' in play';
@@ -675,6 +739,7 @@ function renderLive(){
 }
 $$('.live-sport').forEach(b=>b.addEventListener('click',()=>{$$('.live-sport').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderLive();}));
 $('#liveComp').addEventListener('change',renderLive);
+$('#liveSort').addEventListener('change',renderLive);
 let footballFilter='all';
 function matchDay(m){
   if(m.live)return 'live';
@@ -704,10 +769,12 @@ const marketData={
    {t:'Double chance',sels:[['Arsenal or Draw (1X)',1.08],['Arsenal or Brighton (12)',1.22],['Draw or Brighton (X2)',2.75]]},
    {t:'Draw no bet',sels:[['Arsenal',1.22],['Brighton',3.90]]},
    {t:'Correct score',sels:[['1–0',6.50],['2–0',7.00],['2–1',8.00],['1–1',7.50],['0–0',11.00],['1–2',13.00]]},
+   {t:'Winning margin',sels:[['Arsenal by 1',3.40],['Arsenal by 2+',2.90],['Brighton by 1',7.50],['Brighton by 2+',11.00]]},
  ]},
  goals:{title:'Goals',markets:[
    {t:'Total goals — Over / Under 2.5',sels:[['Over 2.5',2.35],['Under 2.5',1.58]]},
    {t:'Both teams to score',sels:[['Yes',2.05],['No',1.72]]},
+   {t:'Last team to score',sels:[['Arsenal',1.70],['Brighton',2.90],['No more goals',6.50]]},
    {t:'Arsenal total goals — Over / Under 1.5',sels:[['Over 1.5',1.65],['Under 1.5',2.15]]},
  ]},
  halves:{title:'Halves',markets:[
@@ -722,6 +789,7 @@ const marketData={
  ]},
  scorers:{title:'Goalscorers',markets:[
    {t:'Next goalscorer (sample shirt numbers)',sels:[['Home No. 9',3.40],['Home No. 7',4.50],['Away No. 11',6.00],['No goalscorer',6.50]]},
+   {t:'First goalscorer (sample shirt numbers)',sels:[['Home No. 9',4.20],['Home No. 7',5.50],['Away No. 11',7.50],['No goalscorer',9.00]]},
    {t:'Anytime goalscorer',susp:true,sels:[['Home No. 9',1.95],['Home No. 11',2.80, true],['Away No. 9',3.60]]},
  ]},
  corners:{title:'Corners & Cards',markets:[
@@ -813,9 +881,10 @@ function placeBets(){
   const t=slipTotals();
   if(t.stake>balance){setBanner('err','✕ <span><b>Bet failed — insufficient sample balance.</b> No stake was taken. Lower a stake and try again.</span>');return;}
   if(failNext){failNext=false;setBanner('err','✕ <span><b>Bet failed.</b> The market closed at the moment of placement (simulated). No stake was taken and your selections are still on the slip.</span>');return;}
-  items.forEach(i=>{myBets.unshift({sel:i.label,match:i.matchName+' — '+i.market,odds:i.odds,stake:i.stake,status:'open',cashout:Math.round(i.stake*i.odds*0.9*100)/100,when:'Just now'});});
+  items.forEach(i=>{myBets.unshift({sel:i.label,match:i.matchName+' — '+i.market,odds:i.odds,stake:i.stake,status:'open',cashout:Math.round(i.stake*i.odds*0.9*100)/100,when:'Just now',rid:i.id,rmarket:i.market,rlabel:i.label,rmatch:i.matchName,rodds:i.odds});});
   balance-=t.stake; updateBalance();
   slip.clear(); syncOddButtons(); renderSlip(); renderMyBets();
+  confetti();
   setBanner('ok',`✅ <span><b>Bet${items.length>1?'s':''} placed.</b> ${items.length} single${items.length>1?'s':''} · total stake ${fmt(t.stake)} USDT. Find them under <b>My Bets → Open</b>, with live cash out.</span>`);
   toast('Bet placed — see My Bets → Open.');
 }
@@ -829,8 +898,8 @@ function updateBalance(){$('#balanceTop').textContent=fmt(balance)+' USDT';rende
 let myBets=[
  {sel:'Liverpool',match:'Liverpool vs Manchester United — Match result',odds:1.65,stake:25,status:'open',cashout:38.20,when:'Today 15:12'},
  {sel:'Over 2.5 goals',match:'Real Madrid vs Bayern Munich — Goals',odds:1.92,stake:10,status:'open',cashout:17.40,when:'Today 14:03'},
- {sel:'Manchester City',match:'Manchester City vs Tottenham — Match result',odds:1.50,stake:20,status:'won',ret:30.00,when:'Yesterday'},
- {sel:'Under 2.5 goals',match:'Juventus vs Roma — Goals',odds:1.80,stake:15,status:'lost',ret:0,when:'Yesterday'},
+ {sel:'Manchester City',match:'Manchester City vs Tottenham — Match result',odds:1.50,stake:20,status:'won',ret:30.00,when:'Yesterday',rid:'hist-mc',rmarket:'Match result',rlabel:'Manchester City',rmatch:'Manchester City vs Tottenham',rodds:1.50},
+ {sel:'Under 2.5 goals',match:'Juventus vs Roma — Goals',odds:1.80,stake:15,status:'lost',ret:0,when:'Yesterday',rid:'hist-jv',rmarket:'Goals',rlabel:'Under 2.5 goals',rmatch:'Juventus vs Roma',rodds:1.80},
 ];
 let betFilter='open';
 function showSlipTab(tab){
@@ -843,6 +912,11 @@ $$('.bet-filter').forEach(b=>b.addEventListener('click',()=>{$$('.bet-filter').f
 function renderMyBets(){
   const open=myBets.filter(b=>b.status==='open').length;
   $('#segBetsCount').textContent=open+' open';
+  const settledB=myBets.filter(b=>b.status!=='open');
+  const stakedAll=myBets.reduce((a,b)=>a+b.stake,0);
+  const retSettled=settledB.reduce((a,b)=>a+(b.status==='won'?(b.ret||0):b.status==='cashed'?((b.cashout||0)+(b.partial||0)):0),0);
+  const pnl=retSettled-settledB.reduce((a,b)=>a+b.stake,0);
+  $('#betsSummary').innerHTML=`<div style="display:flex;gap:9px;flex-wrap:wrap"><span class="qchip" style="cursor:default">Total staked <b>${fmt(stakedAll)} USDT</b></span><span class="qchip" style="cursor:default">Returned (settled) <b>${fmt(retSettled)} USDT</b></span><span class="qchip" style="cursor:default">P&L (settled) <b style="color:${pnl>=0?'var(--green)':'var(--red)'}">${pnl>=0?'+':''}${fmt(pnl)} USDT</b></span></div>`;
   const list=myBets.filter(b=>betFilter==='all'||(betFilter==='open'?b.status==='open':b.status!=='open'));
   $('#myBetsList').innerHTML=list.length?list.map((b,ix)=>`
    <div class="bet"><div class="top"><b>${b.sel}</b><span style="color:var(--cyan2);font-weight:800">@ ${fmt(b.odds)}</span>
@@ -850,12 +924,31 @@ function renderMyBets(){
      <div class="mt kv" style="margin-top:3px">${b.match} · Single · ${b.when}</div>
      <div class="row" style="display:flex;gap:16px;margin-top:9px;flex-wrap:wrap;align-items:center">
        <span class="kv">Stake <b>${fmt(b.stake)} USDT</b></span>
-       ${b.status==='open'?`<span class="kv">Potential return <b>${fmt(b.stake*b.odds)} USDT</b></span><button class="btn btn-mint" style="padding:7px 13px" onclick="cashOut(${myBets.indexOf(b)})">Cash out ${fmt(b.cashout)} USDT</button>`
+       ${b.status==='open'?`<span class="kv">Potential return <b>${fmt(b.stake*b.odds)} USDT</b></span><span class="kv" style="display:flex;align-items:center;gap:7px">Cash out <input type="range" min="10" max="100" step="5" value="100" style="width:92px" oninput="document.getElementById('co-${myBets.indexOf(b)}').textContent=(Math.round(${b.cashout}*this.value)/100).toFixed(2)"><b id="co-${myBets.indexOf(b)}">${fmt(b.cashout)}</b> USDT</span><button class="btn btn-mint" style="padding:7px 13px" onclick="cashOutPct(${myBets.indexOf(b)},this)">Cash out</button>`
        :b.status==='won'?`<span class="kv">Returned <b style="color:var(--green)">${fmt(b.ret)} USDT</b></span>`
        :b.status==='cashed'?`<span class="kv">Cashed out for <b style="color:var(--gold)">${fmt(b.cashout)} USDT</b></span>`
        :`<span class="kv">Returned <b>0.00 USDT</b></span>`}
+       ${b.rid?`<button class="pillbtn" style="margin-left:auto" onclick="repeatBet(${myBets.indexOf(b)})">↻ Repeat bet</button>`:''}
      </div></div>`).join('')
    :`<div class="panelbox"><div class="empty"><div class="big">🧾</div><b>No ${betFilter} bets.</b><br>Placed bets show up here instantly.</div></div>`;
+}
+function cashOutPct(ix,btn){
+  const b=myBets[ix];if(!b||b.status!=='open')return;
+  const sl=btn.closest('.bet').querySelector('input[type=range]');
+  const pct=sl?parseInt(sl.value):100;
+  const amt=Math.round(b.cashout*pct)/100;
+  balance+=amt;
+  if(pct>=100){b.status='cashed';b.cashout=amt;}
+  else{b.partial=Math.round(((b.partial||0)+amt)*100)/100;b.stake=Math.round(b.stake*(100-pct))/100;b.cashout=Math.round(b.cashout*(100-pct))/100;}
+  updateBalance();renderMyBets();
+  toast(pct>=100?`Cashed out ${fmt(amt)} USDT — paid to your sample balance instantly.`:`Partial cash out: ${fmt(amt)} USDT paid now — the rest of the bet still runs.`);
+}
+function repeatBet(ix){
+  const b=myBets[ix];if(!b||!b.rid)return;
+  if(slip.has(b.rid)){toast('That selection is already on your slip.');go('slip');showSlipTab('slip');return;}
+  slip.set(b.rid,{id:b.rid,matchId:'hist',market:b.rmarket,label:b.rlabel,odds:b.rodds,stake:10,state:'ok',matchName:b.rmatch});
+  syncOddButtons();renderSlip();go('slip');showSlipTab('slip');
+  toast(`Repeated: ${b.rlabel} @ ${fmt(b.rodds)} — set your stake and place it.`);
 }
 function cashOut(ix){const b=myBets[ix];if(!b||b.status!=='open')return;b.status='cashed';balance+=b.cashout;updateBalance();renderMyBets();toast(`Cashed out ${fmt(b.cashout)} USDT — paid to your sample balance instantly.`);}
 
@@ -935,16 +1028,76 @@ function openDeposit(){$('#depModal').style.display='flex';}
 function closeDeposit(){$('#depModal').style.display='none';}
 document.addEventListener('click',e=>{if(e.target.id==='depModal')closeDeposit();});
 
-/* ============ V2: theme, probability, chart, sparklines ============ */
-function toggleTheme(){
-  const h=document.documentElement;
-  const light=h.dataset.theme!=='light';
-  h.dataset.theme=light?'light':'dark';
-  $('#themeBtn').textContent=light?'🌙':'☀️';
-  try{localStorage.setItem('hb-theme',h.dataset.theme);}catch(e){}
-  toast(light?'Light mode — same Housebets, Polymarket-clean.':'Dark mode — classic Housebets.');
+/* ============ V4: confetti, wallet, rewards, trending, goal sim ============ */
+function confetti(){
+  const c=document.createElement('div');c.className='confetti';
+  const cols=['#38c6da','#3ddc97','#ffcf5c','#f04b6d','#7fe3f0'];
+  for(let i=0;i<28;i++){const p=document.createElement('i');p.style.left=(Math.random()*100)+'%';p.style.background=cols[i%cols.length];p.style.animationDelay=(Math.random()*0.35)+'s';c.appendChild(p);}
+  document.body.appendChild(c);setTimeout(()=>c.remove(),2100);
 }
-try{if(localStorage.getItem('hb-theme')==='light'){document.documentElement.dataset.theme='light';$('#themeBtn').textContent='🌙';}}catch(e){}
+function toggleWalletMenu(e){
+  if(e)e.stopPropagation();
+  const m=$('#walletMenu');const open=m.style.display!=='none';
+  m.style.display=open?'none':'block';
+  if(!open)$('#wmBal').textContent=fmt(balance)+' USDT';
+}
+document.addEventListener('click',e=>{if(!e.target.closest('#walletMenu')&&!e.target.closest('#avatarBtn')){const m=$('#walletMenu');if(m)m.style.display='none';}});
+function openWithdraw(){$('#wdModal').style.display='flex';$('#wdErr').textContent='';}
+function closeWithdraw(){$('#wdModal').style.display='none';}
+function doWithdraw(){
+  const amt=parseFloat($('#wdAmt').value)||0, addr=$('#wdAddr').value.trim(), err=$('#wdErr');
+  if(amt<=0){err.textContent='Enter an amount above zero.';return;}
+  if(amt>balance){err.textContent='That is above your sample balance of '+fmt(balance)+' USDT.';return;}
+  if(addr.length<8){err.textContent='Paste a wallet address first.';return;}
+  balance-=amt;updateBalance();closeWithdraw();
+  toast('Withdrawal sent — '+fmt(amt)+' USDT straight to your wallet (sample).');
+}
+document.addEventListener('click',e=>{if(e.target.id==='wdModal')closeWithdraw();});
+let rakeAccrued=12.50;
+function claimRake(){
+  if(rakeAccrued<=0){toast('No rakeback waiting — new rakeback lands daily.');return;}
+  balance+=rakeAccrued;rakeAccrued=0;
+  $('#rakeAmt').textContent='0.00';
+  const b=$('#rakeBtn');b.disabled=true;b.textContent='Claimed ✓';
+  updateBalance();confetti();
+  toast('Rakeback claimed — credited to your sample balance instantly.');
+}
+setInterval(()=>{
+  const el=$('#reloadTimer');if(!el)return;
+  const now=new Date(),mid=new Date(now);mid.setHours(24,0,0,0);
+  let d=Math.floor((mid-now)/1000);
+  const hh=String(Math.floor(d/3600)).padStart(2,'0'),mm=String(Math.floor(d%3600/60)).padStart(2,'0'),ss=String(d%60).padStart(2,'0');
+  el.textContent=hh+':'+mm+':'+ss;
+},1000);
+function trendSearch(t){const i=$('#globalSearch');i.value=t;i.dispatchEvent(new Event('input',{bubbles:true}));i.focus();}
+function simGoal(){
+  const cands=liveMatches.filter(m=>m.sport==='football'&&!m.match&&m.hs!=null&&!(m.suspUntil&&m.suspUntil>Date.now()));
+  if(!cands.length)return false;
+  const m=cands[Math.floor(Math.random()*cands.length)];
+  const homeScored=Math.random()<0.55;
+  if(homeScored){m.hs++;m.odds[0]=Math.max(1.03,Math.round(m.odds[0]*0.82*100)/100);}
+  else{m.as++;m.odds[2]=Math.max(1.05,Math.round(m.odds[2]*0.8*100)/100);}
+  m.suspUntil=Date.now()+5000;
+  renderStaticLists();
+  toast('⚽ Goal! '+m.home+' '+m.hs+'–'+m.as+' '+m.away+' — markets suspended, then repriced.');
+  setTimeout(()=>{delete m.suspUntil;renderStaticLists();},5200);
+  return true;
+}
+setInterval(()=>{if(Math.random()<0.5)simGoal();},45000);
+
+/* ============ V2: theme, probability, chart, sparklines ============ */
+const THEMES=['dark','light','platform'];
+const THEME_LABEL={dark:'🌙 Dark',light:'☀️ Light',platform:'🏠 Platform'};
+const THEME_TOAST={dark:'Dark mode — classic Housebets.',light:'Light mode — same Housebets, Polymarket-clean.',platform:'Platform mode — the real Housebets interface look: black, green and cyan.'};
+let curTheme='dark';
+function applyTheme(t){
+  curTheme=t;const h=document.documentElement;
+  if(t==='dark')h.removeAttribute('data-theme');else h.dataset.theme=t;
+  $('#themeBtn').textContent=THEME_LABEL[t];
+  try{localStorage.setItem('hb-theme',t);}catch(e){}
+}
+function toggleTheme(){const nx=THEMES[(THEMES.indexOf(curTheme)+1)%THEMES.length];applyTheme(nx);toast(THEME_TOAST[nx]);}
+try{const sv=localStorage.getItem('hb-theme');applyTheme(THEMES.includes(sv)?sv:'dark');}catch(e){applyTheme('dark');}
 function sparkSVG(seed){
   let s=0;for(const c of seed)s+=c.charCodeAt(0);
   let pts=[],v=14;for(let i=0;i<12;i++){v+=( ((s*(i+7))%9)-4 );v=Math.max(3,Math.min(25,v));pts.push(`${i*8},${28-v}`);}
